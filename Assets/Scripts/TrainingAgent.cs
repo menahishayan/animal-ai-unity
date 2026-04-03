@@ -28,7 +28,7 @@ public class TrainingAgent : Agent, IPrefab
     [Header("Agent Settings")]
     public float speed = 25f;
     public float quickStopRatio = 0.9f;
-    public float rotationSpeed = 100f;
+    public float rotationSpeed = 200f;
     public float rotationAngle = 0.25f;
     private int lastActionForward = 0;
     private int lastActionRotate = 0;
@@ -478,37 +478,10 @@ public class TrainingAgent : Agent, IPrefab
             return;
         }
 
-        if (andCompleteArena || _nextUpdateCompleteArena)
-        {
-            _nextUpdateCompleteArena = false;
-            float cumulativeReward = GetCumulativeReward();
-            float passMark = _arena.ArenaConfig.passMark;
-
-            bool proceedToNext = passMark == 0 || cumulativeReward >= passMark;
-
-            if (proceedToNext)
-            {
-                if (_arena.mergeNextArena)
-                {
-                    _arena.LoadNextArena();
-                    return;
-                }
-
-                if (showNotification)
-                {
-                    NotificationManager.Instance.ShowSuccessNotification();
-                }
-            }
-            else
-            {
-                if (showNotification)
-                {
-                    NotificationManager.Instance.ShowFailureNotification();
-                }
-            }
-
-            StartCoroutine(EndEpisodeAfterDelay());
-        }
+        // andCompleteArena intentionally ignored — episode continues after food collection.
+        // Food objects are destroyed by Goal.cs on contact; the episode ends only on
+        // health depletion (health <= 0 branch above).
+        _nextUpdateCompleteArena = false;
     }
 
     IEnumerator EndEpisodeAfterDelay()

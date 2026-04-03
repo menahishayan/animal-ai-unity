@@ -72,7 +72,9 @@ public class Goal : Prefab
             if (agent != null)
             {
                 agent.RecordRewardType(rewardType);
-                agent.UpdateHealth(reward, true);
+                agent.UpdateHealth(reward);
+                gameObject.SetActive(false);
+                Object.Destroy(gameObject);
             }
         }
     }
@@ -91,16 +93,9 @@ public class Goal : Prefab
                 if (reward > 0 && reward < 10) {
                     agent.numberOfGoalsCollected++;
                 }
-                if (!isMulti || agent.numberOfGoalsCollected >= numberOfGoals)
-                {
-                    agent.UpdateHealth(reward, andCompleteArena: true);
-                }
-                else
-                {
-                    agent.UpdateHealth(reward);
-                    gameObject.SetActive(false);
-                    Object.Destroy(gameObject);
-                }
+                agent.UpdateHealth(reward);
+                gameObject.SetActive(false);
+                Object.Destroy(gameObject);
             }
             else
             {

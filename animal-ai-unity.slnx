@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Project Path="Scripts.csproj" />
+  <Project Path="YamlDotNet.csproj" />
+  <Project Path="Playmode.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="EditMode.csproj" />
+  <Project Path="YamlDotNet.Examples.csproj" />
+</Solution>

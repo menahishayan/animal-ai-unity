@@ -26,6 +26,8 @@ public class TrainingAgent : Agent, IPrefab
     public static UnityEvent OnEpisodeEnd = new UnityEvent();
 
     [Header("Agent Settings")]
+    // Arena ground plane is 30 × 30 Unity units — used to normalise world position to [0,1].
+    private const float _arenaSize = 30f;
     public float speed = 25f;
     public float quickStopRatio = 0.9f;
     public float rotationSpeed = 200f;
@@ -227,39 +229,21 @@ public class TrainingAgent : Agent, IPrefab
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(health);
+        // [0] health — normalised from Unity units (0–100) to [0,1]
+        sensor.AddObservation(health / 100f);
+
+        // [1–3] local-space velocity
         Vector3 localVel = transform.InverseTransformDirection(_rigidBody.linearVelocity);
-        sensor.AddObservation(localVel);
+        sensor.AddObservation(localVel);          // x, y, z → 3 floats
+
+        // [4–6] world position — normalised by arena size so values stay in [0,1]
         Vector3 localPos = transform.position;
-        sensor.AddObservation(localPos);
-        bool wasAgentFrozen = IsMovementFrozen();
+        sensor.AddObservation(localPos.x / _arenaSize);
+        sensor.AddObservation(localPos.y / _arenaSize);
+        sensor.AddObservation(localPos.z / _arenaSize);
 
-        string actionForwardDescription = DescribeActionForward(lastActionForward);
-        string actionRotateDescription = DescribeActionRotate(lastActionRotate);
-        string actionForwardWithDescription = $"{lastActionForward} ({actionForwardDescription})";
-        string actionRotateWithDescription = $"{lastActionRotate} ({actionRotateDescription})";
-        float reward = GetCumulativeReward();
-        string notificationState = GetNotificationState();
-        (float[] raycastObservations, string[] raycastTags) = CollectRaycastObservations();
-        string combinedRaycastData = CombineRaycastData(raycastObservations, raycastTags);
-        string activeCameraDescription = GetActiveCameraDescription();
-        string dataZoneMessage = DataZone.ConsumeDataZoneMessage();
-
-        _csvWriter.LogToCSV(
-            localVel,
-            localPos,
-            actionForwardWithDescription,
-            actionRotateWithDescription,
-            wasAgentFrozen ? "Yes" : "No",
-            reward,
-            notificationState,
-            dataZoneMessage,
-            activeCameraDescription,
-            combinedRaycastData,
-            StepCount,
-            health,
-            _arena.arenaID
-        );
+        // [7] speed magnitude — the authoritative motor PE signal
+        sensor.AddObservation(_rigidBody.linearVelocity.magnitude);
     }
 
     public override void OnActionReceived(ActionBuffers action)

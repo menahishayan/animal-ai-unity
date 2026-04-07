@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 8
+    VectorObservationSize: 10
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -379,9 +379,9 @@ MonoBehaviour:
   - SignPoster
   - DecoyGoal
   - DecoyGoalBounce
-  m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
-  m_SphereCastRadius: 0.5
+  m_RaysPerDirection: 4
+  m_MaxRayDegrees: 80
+  m_SphereCastRadius: 0.75
   m_RayLength: 200
   m_RayLayerMask:
     serializedVersion: 2
@@ -391,7 +391,7 @@ MonoBehaviour:
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   m_StartVerticalOffset: 0
-  m_EndVerticalOffset: 0
+  m_EndVerticalOffset: -0.25
 --- !u!114 &4177324108388760848
 MonoBehaviour:
   m_ObjectHideFlags: 0

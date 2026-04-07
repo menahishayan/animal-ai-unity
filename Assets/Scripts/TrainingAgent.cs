@@ -229,21 +229,48 @@ public class TrainingAgent : Agent, IPrefab
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // [0] health — normalised from Unity units (0–100) to [0,1]
+        // [0] health
         sensor.AddObservation(health / 100f);
 
-        // [1–3] local-space velocity
+        // [1–3] local velocity
         Vector3 localVel = transform.InverseTransformDirection(_rigidBody.linearVelocity);
-        sensor.AddObservation(localVel);          // x, y, z → 3 floats
+        sensor.AddObservation(localVel);
 
-        // [4–6] world position — normalised by arena size so values stay in [0,1]
-        Vector3 localPos = transform.position;
-        sensor.AddObservation(localPos.x / _arenaSize);
-        sensor.AddObservation(localPos.y / _arenaSize);
-        sensor.AddObservation(localPos.z / _arenaSize);
+        // [4–6] world position normalised
+        sensor.AddObservation(transform.position.x / _arenaSize);
+        sensor.AddObservation(transform.position.y / _arenaSize);
+        sensor.AddObservation(transform.position.z / _arenaSize);
 
-        // [7] speed magnitude — the authoritative motor PE signal
+        // [7] speed magnitude
         sensor.AddObservation(_rigidBody.linearVelocity.magnitude);
+
+        // [8–9] forward ray: hit_fraction and tag_index
+        // Encodes the RayPerceptionSensor forward ray directly into the vector obs
+        // since Animal AI 5.x does not expose ray sensor obs through Python obs_list.
+        var (hitFractions, hitTags) = CollectRaycastObservations();
+        if (hitFractions.Length > 0)
+        {
+            sensor.AddObservation(hitFractions[0]);          // [8] forward ray distance (0=hit, 1=miss)
+            sensor.AddObservation(_TagToIndex(hitTags[0]));  // [9] tag as float index
+        }
+        else
+        {
+            sensor.AddObservation(1.0f);  // [8] no hit
+            sensor.AddObservation(0.0f);  // [9] no tag
+        }
+    }
+
+    private float _TagToIndex(string tag)
+    {
+        switch (tag)
+        {
+            case "goodGoal":      return 1f;
+            case "goodGoalMulti": return 2f;
+            case "badGoal":       return 3f;
+            case "Immovable":     return 4f;
+            case "OuterWall":     return 5f;
+            default:              return 0f;
+        }
     }
 
     public override void OnActionReceived(ActionBuffers action)

@@ -365,6 +365,7 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
   - arena
+  - OuterWall
   - Immovable
   - Movable
   - goodGoal

@@ -218,7 +218,19 @@ public class TrainingAgent : Agent, IPrefab
         }
 
         var rayPerceptionInput = rayPerception.GetRayPerceptionInput();
-        var rayPerceptionOutput = RayPerceptionSensor.Perceive(rayPerceptionInput, false);
+        var rayPerceptionOutput = RayPerceptionSensor.Perceive(rayPerceptionInput, true);
+        // Temporary debug — remove before paper submission
+        var rayOutput = rayPerceptionOutput;
+        for (int ri = 0; ri < rayOutput.RayOutputs.Length; ri++)
+        {
+            var ray = rayOutput.RayOutputs[ri];
+            if (ray.HasHit)
+            {
+                Debug.Log($"[RAY] step={StepCount} ray={ri} tag={ray.HitGameObject?.tag} " +
+                        $"name={ray.HitGameObject?.name} frac={ray.HitFraction:F4}");
+            }
+        }
+        // end debug
         float[] hitFractions = rayPerceptionOutput.RayOutputs.Select(r => r.HitFraction).ToArray();
         string[] hitTags = rayPerceptionOutput.RayOutputs
             .Select(r => r.HitGameObject?.tag ?? "None")
